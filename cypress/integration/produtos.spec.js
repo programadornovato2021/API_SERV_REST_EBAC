@@ -49,25 +49,11 @@ describe('Testes da Funcionalidade Produtos', ()=>{
 
 
     it.only('Deve validar mensagem de erro ao cadastrar produto repitido', ()=>{
+        cy.cadastrarProduto(token,"Produto EBAC novo 1", 250, "Descrição do produto novo", 180)
 
-        cy.request({
-           
-            method:'POST',
-            url: 'produtos',
-            headers: {authorization:token},
-            body:{
-                "nome": 'Produto EBAC Novo 1',
-                "preco": 200,
-                "descricao": "Produto novo",
-                "quantidade": 100
-              },
-              failOnStatusCode: false
-              
-              
-
-        }).then((response) =>{
+        .then((response) =>{
             expect(response.status).to.equal(400)
-            expect(response.body.message).to.equal('Já existe produto com esse nome')
+            
         })
     })
 });
