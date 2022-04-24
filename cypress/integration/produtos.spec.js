@@ -1,5 +1,7 @@
 ///<reference types="cypress"/>
 
+import contrato from '../contracts/produtos.contracts'
+
 describe('Testes da Funcionalidade Produtos', ()=>{
 
     let token
@@ -8,7 +10,16 @@ describe('Testes da Funcionalidade Produtos', ()=>{
 
     });
 
+    it.only('Deve validar contrato de produtos', ()=>{
+        cy.request('produtos').then(response=>{
+            return contrato.validateAsync(response.body)
+        })
+
+
+    })
+
     it('Listar Produtos', ()=>{
+        
 
         cy.request({
             method: 'GET',
@@ -48,7 +59,7 @@ describe('Testes da Funcionalidade Produtos', ()=>{
     })
 
 
-    it.only('Deve validar mensagem de erro ao cadastrar produto repitido', ()=>{
+    it('Deve validar mensagem de erro ao cadastrar produto repitido', ()=>{
         cy.cadastrarProduto(token,"Produto EBAC novo 1", 250, "Descrição do produto novo", 180)
 
         .then((response) =>{
@@ -56,5 +67,79 @@ describe('Testes da Funcionalidade Produtos', ()=>{
             
         })
     })
+
+
+
+    it('Deve editar um produto já cadastrado', ()=>{
+        cy.request('produtos').then(response =>{
+            
+            let id = response.body.produtos[0]._id
+            cy.request({
+                method: 'PUT',
+                url: `produtos/${id}`,
+                headers: {authorization:token},
+                body:
+                {
+                    "nome": "Logitech MX Vertical",
+                    "preco": 470,
+                    "descricao": "PC",
+                    "quantidade": 100
+                  }
+            })
+        })
+
+    })
+
+
+
+    it('Deve editar um produto cadastrado previamente', ()=>{
+        let produto = `Produto EBAC ${Math.floor(Math.random()*100000000)}`
+        cy.cadastrarProduto(token,produto, 250, "Descrição do produto novo", 180)
+        .then(response=>{
+            let id = response.body._id
+
+            cy.request('produtos').then(response =>{
+            
+                let id = response.body.produtos[0]._id
+                cy.request({
+                    method: 'PUT',
+                    url: `produtos/${id}`,
+                    headers: {authorization:token},
+                    body:
+                    {
+                        "nome": produto,
+                        "preco": 47,
+                        "descricao": "PC",
+                        "quantidade": 100
+                      }
+                })
+            })
+
+        })
+    })
+
+
+    it('Deve deletar um produto previamente cadastrado',()=>{
+        let produto = `Produto EBAC ${Math.floor(Math.random()*100000000)}`
+        cy.cadastrarProduto(token,produto, 250, "Descrição do produto novo", 180)
+        .then(response=>{
+
+            let id = response.body._id
+
+            cy.request({
+                method: 'DELETE',
+                url: `produtos/${id}`,
+                headers: {authorization: token}
+            }).then(response =>{
+                expect(response.body.message).to.equal('Nenhum registro excluído')
+                expect(response.status).to.equal(200)
+            })
+        })
+
+
+    })
+
+
+
 });
 
