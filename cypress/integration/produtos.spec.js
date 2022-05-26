@@ -26,7 +26,7 @@ describe('Testes da Funcionalidade Produtos', ()=>{
             url: 'produtos'
 
         }).then((response)=>{
-            expect(response.body.produtos[1].nome).to.equal('Samsung 60 polegadas')
+            
             expect(response.status).to.equal(200)
             expect(response.body).to.have.property('produtos')
             expect(response.duration).to.be.lessThan(50)
